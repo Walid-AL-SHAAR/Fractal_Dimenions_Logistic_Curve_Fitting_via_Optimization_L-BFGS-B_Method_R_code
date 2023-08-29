@@ -1,0 +1,50 @@
+library(pracma)
+library(nloptr)
+
+
+
+# Define the observed values
+y <- c(1.503, 1.599, 1.634, 1.708, 1.709)
+t <- c(2000, 2011, 2020, 2050, 2100)
+
+
+
+# Define the function
+my_function <- function(x, t) {
+  if (x[1] == 0) {
+    return(c(0))
+  } else {
+    y_predicted <- x[1] / (1 + (((x[1] / y[1])-1) * exp(-x[2] * (t - t[1]))))
+    return(c(y_predicted))
+  }
+}
+
+
+
+# Define the sum of least squares function
+sum_of_least_squares <- function(x) {
+  y_predicted <- my_function(x, t)
+  sum((y - y_predicted)^2)
+}
+
+# Define the optimization function
+optim_result <- optim(par = c(2, 0.001), fn = sum_of_least_squares, method = "L-BFGS-B",
+lower = c(max(y), 0.001), upper = c(2, Inf), control = list(maxit = 20000))
+
+
+# Check if the results converge
+if (optim_result$convergence == 0) {
+  print("The optimization converged successfully.")
+} else {
+  print("The optimization did not converge.")
+}
+
+# Print the results
+print(optim_result)
+
+# Print the r-squared value
+r_squared <- 1 - sum((y - my_function(optim_result$par, t))^2) / sum((y - mean(y))^2)
+print(paste("R-squared:", r_squared))
+
+# Print the detailed iteration results
+print(optim_result$iterations)
