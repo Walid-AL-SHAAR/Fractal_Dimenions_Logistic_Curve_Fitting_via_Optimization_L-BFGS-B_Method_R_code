@@ -1,7 +1,7 @@
 library(pracma)
 library(nloptr)
 
-
+ 
 
 # Define the observed values
 y <- c(1.503, 1.599, 1.634, 1.708, 1.709)
